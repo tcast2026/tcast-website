@@ -1,47 +1,24 @@
-// Minimal hand-written types for the columns the website actually reads.
-// This mirrors supabase/migrations/0001_shipments_and_auth.sql — it is not
-// a full generated schema (the Cargo App owns the write-side shape), just
-// enough for the tracking API route to be type-safe.
+// Shape returned by the `track_shipment(p_tracking_number text)` Postgres
+// function (see supabase/migrations in the tcast-cargo-webapp repo). Kept
+// here as a single source of truth for the JSON keys the RPC builds with
+// jsonb_build_object — update both together if the function's shape changes.
 
-export interface ShipmentRow {
-  id: string;
-  tracking_number: string;
+export interface TrackShipmentHistoryItem {
+  status: string;
+  location?: string;
+  time: string;
+  description?: string;
+}
+
+export interface TrackShipmentResult {
+  shipmentNumber: string;
   status: string;
   origin: string;
   destination: string;
-  destination_city: string;
-  weight_kg: number;
+  currentLocation: string;
+  receiver: string;
+  weightKg: number;
   pcs: number;
-  receiver_name: string;
-  expected_arrival: string | null;
-  updated_at: string;
-}
-
-export interface ShipmentStatusEventRow {
-  status: string;
-  location: string;
-  event_time: string;
-  note: string | null;
-  is_public: boolean;
-}
-
-export interface Database {
-  public: {
-    Tables: {
-      shipments: {
-        Row: ShipmentRow;
-        Insert: Partial<ShipmentRow>;
-        Update: Partial<ShipmentRow>;
-        Relationships: [];
-      };
-      shipment_status_events: {
-        Row: ShipmentStatusEventRow & { id: string; shipment_id: string; created_at: string };
-        Insert: Partial<ShipmentStatusEventRow> & { shipment_id: string };
-        Update: Partial<ShipmentStatusEventRow>;
-        Relationships: [];
-      };
-    };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-  };
+  lastUpdate: string;
+  history: TrackShipmentHistoryItem[];
 }

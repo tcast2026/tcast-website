@@ -34,7 +34,7 @@ Copy `.env.example` to `.env.local` and set only the integrations being enabled.
 - `NEXT_PUBLIC_SITE_URL` — canonical website URL.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` — secure server-side contact and quote email delivery.
 - `QUOTE_EMAIL_TO` — quote/contact destination; defaults to `tahilcast@gmail.com`.
-- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` — server-only credentials for the shared Supabase project. The tracking API route (`src/app/api/tracking/route.ts`) reads shipment data written by the Cargo App; the website never stores its own shipment records. Schema/migrations live in the `tcast-cargo-webapp` repo under `supabase/migrations`.
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY` — the shared Supabase project's URL and **publishable** key (never the service_role key — this app should never hold it). The tracking API route (`src/app/api/tracking/route.ts`) calls a single `track_shipment()` RPC that reads shipment data written by the Cargo App; the website never stores its own shipment records and can't query any table directly (Row Level Security blocks it — only the RPC is granted to this key). Schema/migrations live in the `tcast-cargo-webapp` repo under `supabase/migrations`.
 - `ALLOWED_FORM_ORIGINS` — comma-separated trusted production origins.
 
 No secret is exposed to browser code. When SMTP or shipment tracking is not configured, the website shows a clear contact alternative and does not claim success or display sample shipment data.
