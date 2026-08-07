@@ -4,7 +4,6 @@ import { AlertCircle, CheckCircle2, LoaderCircle, MessageCircle, PackageSearch, 
 import { FormEvent, useState } from "react";
 import type { Locale } from "@/i18n/config";
 import { whatsappLink } from "@/config/company";
-import { supabaseBrowser, supabaseBrowserConfigured } from "@/lib/supabase-browser";
 
 type FormState = { type: "idle" | "loading" | "success" | "error"; message?: string };
 
@@ -63,28 +62,7 @@ function formatDate(value?:string,sw?:boolean){if(!value)return "—";try{return
 
 export function TrackingForm({ locale }: { locale: Locale }) {
   const sw=locale==="sw"; const [number,setNumber]=useState(""); const [state,setState]=useState<FormState>({type:"idle"}); const [result,setResult]=useState<TrackingResult|null>(null);
-  async function submit(e:FormEvent){
-    e.preventDefault();setResult(null);
-    const trimmed=number.trim();
-    if(!/^[A-Za-z0-9-]{5,40}$/.test(trimmed)){setState({type:"error",message:sw?"Weka namba sahihi yenye angalau herufi au tarakimu 5.":"Enter a valid tracking number with at least 5 letters or digits."});return;}
-    setState({type:"loading",message:sw?"Inatafuta mzigo…":"Looking up shipment…"});
-    try{
-      if(!supabaseBrowserConfigured){throw new Error(sw?"Ufuatiliaji mtandaoni haujaunganishwa bado. Tafadhali wasiliana na TCAST Cargo ukiwa na namba ya mzigo wako.":"Online tracking is not connected yet. Please contact TCAST Cargo with your shipment number for an update.");}
-      // Reads directly from Supabase in the browser — no route, no cache,
-      // always the latest data the Cargo App has written. track_shipment()
-      // is a SECURITY DEFINER function that does a single exact-match
-      // lookup, so the publishable key still can't enumerate shipments;
-      // every table stays restricted to authenticated Cargo App staff.
-      // Untyped client (see supabase-browser.ts) means .rpc()'s generic
-      // inference resolves to undefined/never for the args/result, so cast
-      // at the call site rather than fighting supabase-js's generics.
-      const {data,error}=await (supabaseBrowser as unknown as {rpc:(fn:string,args:Record<string,unknown>)=>Promise<{data:unknown;error:{message:string}|null}>}).rpc("track_shipment",{p_tracking_number:trimmed});
-      if(error)throw error;
-      if(!data){setState({type:"error",message:sw?"Hakuna mzigo uliopatikana kwa namba hiyo. Angalia rejea au wasiliana na TCAST Cargo.":"No shipment was found for that number. Check the reference or contact TCAST Cargo."});return;}
-      setResult(data as TrackingResult);
-      setState({type:"success",message:sw?"Taarifa ya mzigo imepatikana.":"Shipment information found."});
-    }catch(error){setState({type:"error",message:error instanceof Error?error.message:(sw?"Ufuatiliaji haupatikani.":"Tracking is unavailable.")});}
-  }
+  async function submit(e:FormEvent){e.preventDefault();setResult(null);if(!/^[A-Za-z0-9-]{5,40}$/.test(number.trim())){setState({type:"error",message:sw?"Weka namba sahihi yenye angalau herufi au tarakimu 5.":"Enter a valid tracking number with at least 5 letters or digits."});return;}setState({type:"loading",message:sw?"Inatafuta mzigo…":"Looking up shipment…"});try{const res=await fetch(`/api/tracking?number=${encodeURIComponent(number.trim())}`);const body=await res.json();if(!res.ok)throw new Error(body.message);setResult(body.data);setState({type:"success",message:sw?"Taarifa ya mzigo imepatikana.":"Shipment information found."});}catch(error){setState({type:"error",message:error instanceof Error?error.message:(sw?"Ufuatiliaji haupatikani.":"Tracking is unavailable.")});}}
   return <div className="tracking-card"><div className="tracking-icon"><PackageSearch/></div><h2>{sw?"Weka namba ya ufuatiliaji":"Enter your tracking number"}</h2><p>{sw?"Tumia rejea uliyopewa na TCAST Cargo.":"Use the shipment reference provided by TCAST Cargo."}</p><form className="tracking-search" onSubmit={submit}><label className="sr-only" htmlFor="tracking-number">{sw?"Namba ya ufuatiliaji":"Tracking number"}</label><input id="tracking-number" value={number} onChange={e=>setNumber(e.target.value)} placeholder="TCAST-XXXXXXXX" maxLength={40} autoComplete="off"/><button className="button button-primary" disabled={state.type==="loading"}><Search/>{sw?"Tafuta":"Search"}</button></form><Status state={state}/>{state.type==="idle"&&<div className="tracking-empty"><PackageSearch/><span>{sw?"Hali ya mzigo itaonekana hapa.":"Your shipment status will appear here."}</span></div>}{result&&<div className="tracking-result">
     <div className="tracking-result-head"><div><span>{sw?"Namba ya mzigo":"Tracking number"}</span><strong className="tracking-number-value">{result.shipmentNumber}</strong></div><span className={`status-pill ${STATUS_TONE[result.status]||"tone-blue"}`}>{result.status}</span></div>
     <div className="tracking-summary">
