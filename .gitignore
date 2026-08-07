@@ -31,3 +31,6 @@ Thumbs.db
 # Internal QA screenshots and scratch files — not part of the deployable site
 .qa/
 probe.ts
+
+# Stray loose asset not referenced anywhere in src/ or public/
+file_0000000098e481f4afebf82dbf5111b5.png
