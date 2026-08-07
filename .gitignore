@@ -1,0 +1,33 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# TypeScript build artifacts
+*.tsbuildinfo
+next-env.d.ts
+
+# logs
+npm-debug.log*
+*.log
+.dev-server.log
+.dev-server.err.log
+.preview-server.log
+.preview-server.err.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.pem
+
+# Internal QA screenshots and scratch files — not part of the deployable site
+.qa/
+probe.ts
