@@ -16,13 +16,26 @@ export const company = {
       city: "Dar es Salaam, Tanzania",
       lines: [
         "KING PALACE Building, Near NBC Bank",
-        "2nd Floor, Office No. 203",
-        "Mnazi Mmoja, Jamhuri Street",
-        "Bibi Titi Moh'd Road & Uhuru Road Junction",
+        "1st Floor",
+        "Office No. 114",
+        "Mnazi Mmoja",
+        "Jamhuri Street",
+        "Bibi Titi Mohamed Road & Uhuru Road Junction",
+        "Dar es Salaam, Tanzania",
+      ],
+      linesSw: [
+        "Jengo la KING PALACE, Karibu na Benki ya NBC",
+        "Ghorofa ya Kwanza",
+        "Ofisi Na. 114",
+        "Mnazi Mmoja",
+        "Mtaa wa Jamhuri",
+        "Makutano ya Barabara ya Bibi Titi Mohamed na Uhuru",
         "Dar es Salaam, Tanzania",
       ],
       address:
-        "KING PALACE Building, Near NBC Bank, 2nd Floor, Office No. 203, Mnazi Mmoja, Jamhuri Street, Bibi Titi Moh'd Road & Uhuru Road Junction, Dar es Salaam, Tanzania",
+        "KING PALACE Building, Near NBC Bank, 1st Floor, Office No. 114, Mnazi Mmoja, Jamhuri Street, Bibi Titi Mohamed Road & Uhuru Road Junction, Dar es Salaam, Tanzania",
+      addressSw:
+        "Jengo la KING PALACE, Karibu na Benki ya NBC, Ghorofa ya Kwanza, Ofisi Na. 114, Mnazi Mmoja, Mtaa wa Jamhuri, Makutano ya Barabara ya Bibi Titi Mohamed na Uhuru, Dar es Salaam, Tanzania",
       hours: "Please contact the office to confirm current opening hours.",
     },
     dubai: {

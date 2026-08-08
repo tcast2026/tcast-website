@@ -7,6 +7,7 @@ export const ui = {
     nav: {
       home: "Home",
       about: "About Us",
+      leadership: "Leadership",
       services: "Services",
       how: "How It Works",
       gallery: "Gallery",
@@ -61,6 +62,7 @@ export const ui = {
     nav: {
       home: "Mwanzo",
       about: "Kuhusu Sisi",
+      leadership: "Uongozi",
       services: "Huduma",
       how: "Jinsi Inavyofanya Kazi",
       gallery: "Picha",

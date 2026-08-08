@@ -7,13 +7,13 @@ import { ChevronDown, Mail, MapPin, Menu, MessageCircle, Phone, X, ArrowUp } fro
 import { useEffect, useState } from "react";
 import { company, mapsLink, whatsappLink } from "@/config/company";
 import { getServices } from "@/data/services";
-import { type Locale, localizePath } from "@/i18n/config";
+import { alternateLocalePath, type Locale, localizePath } from "@/i18n/config";
 import { getUi } from "@/i18n/dictionaries";
 
 function LanguageSwitcher({ locale, compact = false }: { locale: Locale; compact?: boolean }) {
   const pathname = usePathname();
   const other = locale === "en" ? "sw" : "en";
-  const nextPath = pathname.replace(/^\/(en|sw)(?=\/|$)/, `/${other}`);
+  const nextPath = alternateLocalePath(pathname, other);
   return (
     <Link className={compact ? "language-switch compact" : "language-switch"} href={nextPath} hrefLang={other}>
       <span className="language-current">{locale.toUpperCase()}</span>
@@ -29,7 +29,7 @@ export function Header({ locale }: { locale: Locale }) {
   const t = getUi(locale);
   const services = getServices(locale);
   const nav = [
-    [t.nav.home, ""], [t.nav.about, "about"], [t.nav.how, "how-it-works"],
+    [t.nav.home, ""], [t.nav.how, "how-it-works"],
     [t.nav.gallery, "gallery"], [t.nav.faq, "faq"], [t.nav.contact, "contact"],
   ] as const;
   const active = (slug: string) => pathname === localizePath(locale, slug);
@@ -56,7 +56,16 @@ export function Header({ locale }: { locale: Locale }) {
             <Image src="/brand/tcast-logo.png" width={250} height={178} alt="TCAST Cargo" priority />
           </Link>
           <nav className="desktop-nav" aria-label="Primary navigation">
-            {nav.slice(0, 2).map(([label, slug]) => <Link key={slug} className={active(slug) ? "active" : ""} href={localizePath(locale, slug)}>{label}</Link>)}
+            <Link className={active("") ? "active" : ""} href={localizePath(locale)}>{t.nav.home}</Link>
+            <div className="nav-dropdown">
+              <Link className={active("about") || active("leadership") ? "active" : ""} href={localizePath(locale, "about")}>
+                {t.nav.about}<ChevronDown size={15} />
+              </Link>
+              <div className="dropdown-panel about-dropdown">
+                <Link href={localizePath(locale, "about")}>{t.nav.about}</Link>
+                <Link href={localizePath(locale, "leadership")}>{t.nav.leadership}</Link>
+              </div>
+            </div>
             <div className="nav-dropdown">
               <Link className={pathname.includes(`/${locale}/services`) ? "active" : ""} href={localizePath(locale, "services")}>
                 {t.nav.services}<ChevronDown size={15} />
@@ -65,7 +74,7 @@ export function Header({ locale }: { locale: Locale }) {
                 {services.map((service) => <Link key={service.slug} href={localizePath(locale, `services/${service.slug}`)}>{service.title}</Link>)}
               </div>
             </div>
-            {nav.slice(2).map(([label, slug]) => <Link key={slug} className={active(slug) ? "active" : ""} href={localizePath(locale, slug)}>{label}</Link>)}
+            {nav.slice(1).map(([label, slug]) => <Link key={slug} className={active(slug) ? "active" : ""} href={localizePath(locale, slug)}>{label}</Link>)}
           </nav>
           <div className="header-actions">
             <LanguageSwitcher locale={locale} />
@@ -78,10 +87,12 @@ export function Header({ locale }: { locale: Locale }) {
         </div>
         <div id="mobile-menu" className={`mobile-menu ${open ? "open" : ""}`} aria-hidden={!open} onClick={(event) => { if ((event.target as HTMLElement).closest("a")) setOpen(false); }}>
           <div className="container mobile-menu-inner">
-            {nav.slice(0, 2).map(([label, slug]) => <Link key={slug} href={localizePath(locale, slug)}>{label}</Link>)}
+            <Link href={localizePath(locale)}>{t.nav.home}</Link>
+            <Link href={localizePath(locale, "about")}><strong>{t.nav.about}</strong></Link>
+            <div className="mobile-services mobile-about"><Link href={localizePath(locale, "leadership")}>{t.nav.leadership}</Link></div>
             <Link href={localizePath(locale, "services")}><strong>{t.nav.services}</strong></Link>
             <div className="mobile-services">{services.map((s) => <Link key={s.slug} href={localizePath(locale, `services/${s.slug}`)}>{s.title}</Link>)}</div>
-            {nav.slice(2).map(([label, slug]) => <Link key={slug} href={localizePath(locale, slug)}>{label}</Link>)}
+            {nav.slice(1).map(([label, slug]) => <Link key={slug} href={localizePath(locale, slug)}>{label}</Link>)}
             <div className="mobile-actions">
               <Link className="button button-ghost" href={localizePath(locale, "tracking")}>{t.nav.track}</Link>
               <Link className="button button-primary" href={localizePath(locale, "request-quote")}>{t.nav.quote}</Link>
@@ -97,7 +108,8 @@ export function Header({ locale }: { locale: Locale }) {
 export function Footer({ locale }: { locale: Locale }) {
   const t = getUi(locale);
   const services = getServices(locale);
-  const links = [[t.nav.about,"about"],[t.nav.how,"how-it-works"],[t.nav.faq,"faq"],[t.nav.gallery,"gallery"],[t.nav.contact,"contact"],[t.nav.track,"tracking"]];
+  const links = [[t.nav.about,"about"],[t.nav.leadership,"leadership"],[t.nav.how,"how-it-works"],[t.nav.faq,"faq"],[t.nav.gallery,"gallery"],[t.nav.contact,"contact"],[t.nav.track,"tracking"]];
+  const tanzaniaLines = locale === "sw" ? company.offices.tanzania.linesSw : company.offices.tanzania.lines;
   return (
     <footer className="site-footer">
       <div className="container footer-grid">
@@ -109,7 +121,7 @@ export function Footer({ locale }: { locale: Locale }) {
         <div><h2>{t.labels.quickLinks}</h2><div className="footer-links">{links.map(([label,slug])=><Link key={slug} href={localizePath(locale,slug)}>{label}</Link>)}</div></div>
         <div><h2>{t.labels.serviceLinks}</h2><div className="footer-links">{services.slice(0,5).map(s=><Link key={s.slug} href={localizePath(locale,`services/${s.slug}`)}>{s.title}</Link>)}</div></div>
         <div className="footer-office"><h2>{t.labels.dubai}</h2><p>{company.offices.dubai.lines.join(", ")}</p><a href={`tel:${company.phones.dubai.href}`}><Phone size={16}/>{company.phones.dubai.display}</a><a target="_blank" rel="noreferrer" href={mapsLink(company.offices.dubai.address)}><MapPin size={16}/>{t.actions.directions}</a></div>
-        <div className="footer-office"><h2>{t.labels.tanzania}</h2><p>{company.offices.tanzania.lines.join(", ")}</p><a href={`tel:${company.phones.tanzania.href}`}><Phone size={16}/>{company.phones.tanzania.display}</a><a href={`tel:${company.phones.tanzaniaSecondary.href}`}><Phone size={16}/>{company.phones.tanzaniaSecondary.display}</a><a target="_blank" rel="noreferrer" href={mapsLink(company.offices.tanzania.address)}><MapPin size={16}/>{t.actions.directions}</a></div>
+        <div className="footer-office"><h2>{t.labels.tanzania}</h2><p>{tanzaniaLines.join(", ")}</p><a href={`tel:${company.phones.tanzania.href}`}><Phone size={16}/>{company.phones.tanzania.display}</a><a href={`tel:${company.phones.tanzaniaSecondary.href}`}><Phone size={16}/>{company.phones.tanzaniaSecondary.display}</a><a target="_blank" rel="noreferrer" href={mapsLink(company.offices.tanzania.address)}><MapPin size={16}/>{t.actions.directions}</a></div>
       </div>
       <div className="container footer-bottom"><p>© {new Date().getFullYear()} {company.legalName}. {t.copyright}</p><div><Link href={localizePath(locale,"privacy-policy")}>{locale === "en" ? "Privacy Policy" : "Sera ya Faragha"}</Link><Link href={localizePath(locale,"terms-and-conditions")}>{locale === "en" ? "Terms & Conditions" : "Vigezo na Masharti"}</Link></div></div>
     </footer>
