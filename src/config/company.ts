@@ -6,8 +6,7 @@ export const company = {
   email: "tahilcast@gmail.com",
   quoteEmail: process.env.QUOTE_EMAIL_TO || "tahilcast@gmail.com",
   phones: {
-    tanzania: { display: "+255 713 884 888", href: "+255713884888" },
-    tanzaniaSecondary: { display: "+255 659 746 575", href: "+255659746575" },
+    tanzania: { display: "+255 671 711 333", href: "+255671711333" },
     dubai: { display: "+971 54 2382399", href: "+971542382399" },
     whatsapp: { display: "+971 54 2382399", href: "971542382399" },
   },
