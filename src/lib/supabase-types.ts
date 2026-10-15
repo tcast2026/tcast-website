@@ -13,6 +13,8 @@ export interface TrackShipmentHistoryItem {
 export interface TrackShipmentResult {
   shipmentNumber: string;
   status: string;
+  statusLabel?: string;
+  isOnHold?: boolean;
   origin: string;
   destination: string;
   currentLocation: string;
@@ -20,5 +22,6 @@ export interface TrackShipmentResult {
   weightKg: number;
   pcs: number;
   lastUpdate: string;
+  expectedArrival?: string;
   history: TrackShipmentHistoryItem[];
 }

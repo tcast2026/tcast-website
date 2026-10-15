@@ -40,7 +40,7 @@ export function Header({ locale }: { locale: Locale }) {
       <div className="topbar">
         <div className="container topbar-inner">
           <div className="topbar-links">
-            <div className="topbar-phone-group"><Phone size={14} /><span>TZ</span><a href={`tel:${company.phones.tanzania.href}`}>{company.phones.tanzania.display}</a><span aria-hidden="true">/</span><a href={`tel:${company.phones.tanzaniaSecondary.href}`}>{company.phones.tanzaniaSecondary.display}</a></div>
+            <div className="topbar-phone-group"><Phone size={14} /><span>TZ</span><a href={`tel:${company.phones.tanzania.href}`}>{company.phones.tanzania.display}</a></div>
             <a href={`tel:${company.phones.dubai.href}`}><Phone size={14} /> UAE {company.phones.dubai.display}</a>
             <a href={`mailto:${company.email}`}><Mail size={14} /> {company.email}</a>
           </div>
@@ -121,7 +121,7 @@ export function Footer({ locale }: { locale: Locale }) {
         <div><h2>{t.labels.quickLinks}</h2><div className="footer-links">{links.map(([label,slug])=><Link key={slug} href={localizePath(locale,slug)}>{label}</Link>)}</div></div>
         <div><h2>{t.labels.serviceLinks}</h2><div className="footer-links">{services.slice(0,5).map(s=><Link key={s.slug} href={localizePath(locale,`services/${s.slug}`)}>{s.title}</Link>)}</div></div>
         <div className="footer-office"><h2>{t.labels.dubai}</h2><p>{company.offices.dubai.lines.join(", ")}</p><a href={`tel:${company.phones.dubai.href}`}><Phone size={16}/>{company.phones.dubai.display}</a><a target="_blank" rel="noreferrer" href={mapsLink(company.offices.dubai.address)}><MapPin size={16}/>{t.actions.directions}</a></div>
-        <div className="footer-office"><h2>{t.labels.tanzania}</h2><p>{tanzaniaLines.join(", ")}</p><a href={`tel:${company.phones.tanzania.href}`}><Phone size={16}/>{company.phones.tanzania.display}</a><a href={`tel:${company.phones.tanzaniaSecondary.href}`}><Phone size={16}/>{company.phones.tanzaniaSecondary.display}</a><a target="_blank" rel="noreferrer" href={mapsLink(company.offices.tanzania.address)}><MapPin size={16}/>{t.actions.directions}</a></div>
+        <div className="footer-office"><h2>{t.labels.tanzania}</h2><p>{tanzaniaLines.join(", ")}</p><a href={`tel:${company.phones.tanzania.href}`}><Phone size={16}/>{company.phones.tanzania.display}</a><a target="_blank" rel="noreferrer" href={mapsLink(company.offices.tanzania.address)}><MapPin size={16}/>{t.actions.directions}</a></div>
       </div>
       <div className="container footer-bottom"><p>© {new Date().getFullYear()} {company.legalName}. {t.copyright}</p><div><Link href={localizePath(locale,"privacy-policy")}>{locale === "en" ? "Privacy Policy" : "Sera ya Faragha"}</Link><Link href={localizePath(locale,"terms-and-conditions")}>{locale === "en" ? "Terms & Conditions" : "Vigezo na Masharti"}</Link></div></div>
     </footer>

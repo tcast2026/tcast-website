@@ -34,7 +34,7 @@ Copy `.env.example` to `.env.local` and set only the integrations being enabled.
 - `NEXT_PUBLIC_SITE_URL` — canonical website URL.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` — secure server-side contact and quote email delivery.
 - `QUOTE_EMAIL_TO` — quote/contact destination; defaults to `tahilcast@gmail.com`.
-- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — the shared Supabase project's URL and **publishable** key (never the service_role key — this app should never hold it). `NEXT_PUBLIC_` because the tracking page (`src/components/forms.tsx`, `TrackingForm`) calls the `track_shipment()` RPC directly from the browser via `src/lib/supabase-browser.ts`, so shipment data is always read live and never cached or duplicated on this site. The website can't query any table directly — Row Level Security restricts every table to authenticated Cargo App staff; only the RPC is granted to this key, and it does a single exact-match lookup so it can't be used to enumerate other customers' shipments. Schema/migrations live in the `tcast-cargo-webapp` repo under `supabase/migrations`.
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — use the same project as the Cargo App (`pacxxkmttvvestwjskjq`). The tracking form calls `/api/tracking`; the server applies an IP rate limit and invokes `track_shipment()` with the publishable key. Never configure a service-role/secret key here. Responses use `no-store`, so every search reads the current app data. The rate limit is per server instance; use an infrastructure rate limit for a strict distributed limit. The public RPC is still directly accessible with the publishable key, so website rate limiting alone does not prevent direct RPC enumeration. Schema/migrations live in the Cargo App repo.
 - `ALLOWED_FORM_ORIGINS` — comma-separated trusted production origins.
 
 No secret is exposed to browser code. When SMTP or shipment tracking is not configured, the website shows a clear contact alternative and does not claim success or display sample shipment data.
@@ -44,3 +44,11 @@ No secret is exposed to browser code. When SMTP or shipment tracking is not conf
 Configured for Netlify (see `netlify.toml`). Add the environment variables above to the Netlify site's build settings, deploy, then verify the production domain, email delivery, maps and the live Supabase tracking data.
 
 See [IMAGE-SOURCES.md](./IMAGE-SOURCES.md) for licensed photography and brand-asset notes.
+
+## Tanzania contact and tracking release verification
+
+GitHub main already changed the office number on 2026-10-09 (commit `2d35662`): the previous number was removed and `+255671711333` is used by the footer, contact page and telephone links via `company.ts`. Deploy this repository to the actual website host, then check `https://www.tcastcargo.com/en/contact` and `/sw/contact`. A GitHub commit alone does not prove that the hosted website has rebuilt.
+
+Set both Supabase variables in the website host, redeploy, and test a known shipment reference against the staff app. The website now displays all seven canonical lifecycle statuses, the separate hold flag and newest-first history. Missing configuration returns 503; an unknown reference returns 404; upstream errors return 502. No example status is displayed.
+
+Read-only live check on 2026-10-15: `www.tcastcargo.com` still served the previous Tanzania phone numbers in both languages. Its tracking API returned 404 for the deliberately unknown `TCAST-CONNECTION-CHECK` reference, and the shared Supabase RPC returned HTTP 200/null for that same reference. This confirms the live lookup path responds; it does not verify a real customer shipment.

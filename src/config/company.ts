@@ -1,8 +1,8 @@
 export const company = {
   legalName: "TCAST Cargo & Clearing Ltd",
   brandName: "TCAST Cargo",
-  website: "tcast.co.tz",
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://tcast.co.tz",
+  website: "tcastcargo.com",
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://www.tcastcargo.com",
   email: "tahilcast@gmail.com",
   quoteEmail: process.env.QUOTE_EMAIL_TO || "tahilcast@gmail.com",
   phones: {
@@ -55,7 +55,7 @@ export const company = {
     linkedin: "",
   },
   tracking: {
-    configured: Boolean(process.env.TRACKING_API_URL && process.env.TRACKING_API_KEY),
+    configured: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
   },
 } as const;
 

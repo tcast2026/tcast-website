@@ -4,6 +4,8 @@ import { AlertCircle, CheckCircle2, LoaderCircle, MessageCircle, PackageSearch, 
 import { FormEvent, useState } from "react";
 import type { Locale } from "@/i18n/config";
 import { whatsappLink } from "@/config/company";
+import type { TrackShipmentResult } from "@/lib/supabase-types";
+import { TRACKING_LABELS, trackingStatus, newestHistory } from "@/lib/tracking";
 
 type FormState = { type: "idle" | "loading" | "success" | "error"; message?: string };
 
@@ -54,17 +56,13 @@ export function QuoteForm({ locale }: { locale: Locale }) {
   </div><Status state={state}/>{state.type==="success"&&<a className="button button-outline whatsapp-after" href={whatsappLink(sw?"Habari TCAST Cargo, nimetuma ombi la makadirio kwenye tovuti.":"Hello TCAST Cargo, I submitted a quote request on the website.")} target="_blank" rel="noreferrer"><MessageCircle size={18}/>{sw?"Fuatilia WhatsApp":"Follow up on WhatsApp"}</a>}<button className="button button-primary submit-button" disabled={state.type==="loading"} type="submit"><Send size={18}/>{sw?"Tuma ombi":"Submit request"}</button></form>;
 }
 
-type TrackingResult={shipmentNumber:string;status:string;origin:string;destination:string;currentLocation:string;receiver:string;weightKg:number;pcs:number;expectedArrival?:string;lastUpdate:string;history:{status:string;location?:string;time:string;description?:string}[]};
-
-const STATUS_TONE:Record<string,string>={Received:"tone-blue",Processing:"tone-blue",Packed:"tone-blue","In Transit":"tone-orange",Dispatched:"tone-orange",Arrived:"tone-orange","Ready for Collection":"tone-orange",Delivered:"tone-green","On Hold":"tone-red"};
-
 function formatDate(value?:string,sw?:boolean){if(!value)return "—";try{return new Date(value).toLocaleString(sw?"sw-TZ":"en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch{return value;}}
 
 export function TrackingForm({ locale }: { locale: Locale }) {
-  const sw=locale==="sw"; const [number,setNumber]=useState(""); const [state,setState]=useState<FormState>({type:"idle"}); const [result,setResult]=useState<TrackingResult|null>(null);
-  async function submit(e:FormEvent){e.preventDefault();setResult(null);if(!/^[A-Za-z0-9-]{5,40}$/.test(number.trim())){setState({type:"error",message:sw?"Weka namba sahihi yenye angalau herufi au tarakimu 5.":"Enter a valid tracking number with at least 5 letters or digits."});return;}setState({type:"loading",message:sw?"Inatafuta mzigo…":"Looking up shipment…"});try{const res=await fetch(`/api/tracking?number=${encodeURIComponent(number.trim())}`);const body=await res.json();if(!res.ok)throw new Error(body.message);setResult(body.data);setState({type:"success",message:sw?"Taarifa ya mzigo imepatikana.":"Shipment information found."});}catch(error){setState({type:"error",message:error instanceof Error?error.message:(sw?"Ufuatiliaji haupatikani.":"Tracking is unavailable.")});}}
+  const sw=locale==="sw"; const [number,setNumber]=useState(""); const [state,setState]=useState<FormState>({type:"idle"}); const [result,setResult]=useState<TrackShipmentResult|null>(null);
+  async function submit(e:FormEvent){e.preventDefault();setResult(null);if(!/^[A-Za-z0-9-]{5,40}$/.test(number.trim())){setState({type:"error",message:sw?"Weka namba sahihi yenye angalau herufi au tarakimu 5.":"Enter a valid tracking number with at least 5 letters or digits."});return;}setState({type:"loading",message:sw?"Inatafuta mzigo…":"Looking up shipment…"});try{const res=await fetch(`/api/tracking?number=${encodeURIComponent(number.trim().toUpperCase())}`,{cache:"no-store"});const body=await res.json();if(!res.ok)throw new Error(body.message);setResult(body.data);setState({type:"success",message:sw?"Taarifa ya mzigo imepatikana.":"Shipment information found."});}catch(error){setState({type:"error",message:error instanceof Error?error.message:(sw?"Ufuatiliaji haupatikani.":"Tracking is unavailable.")});}}
   return <div className="tracking-card"><div className="tracking-icon"><PackageSearch/></div><h2>{sw?"Weka namba ya ufuatiliaji":"Enter your tracking number"}</h2><p>{sw?"Tumia rejea uliyopewa na TCAST Cargo.":"Use the shipment reference provided by TCAST Cargo."}</p><form className="tracking-search" onSubmit={submit}><label className="sr-only" htmlFor="tracking-number">{sw?"Namba ya ufuatiliaji":"Tracking number"}</label><input id="tracking-number" value={number} onChange={e=>setNumber(e.target.value)} placeholder="TCAST-XXXXXXXX" maxLength={40} autoComplete="off"/><button className="button button-primary" disabled={state.type==="loading"}><Search/>{sw?"Tafuta":"Search"}</button></form><Status state={state}/>{state.type==="idle"&&<div className="tracking-empty"><PackageSearch/><span>{sw?"Hali ya mzigo itaonekana hapa.":"Your shipment status will appear here."}</span></div>}{result&&<div className="tracking-result">
-    <div className="tracking-result-head"><div><span>{sw?"Namba ya mzigo":"Tracking number"}</span><strong className="tracking-number-value">{result.shipmentNumber}</strong></div><span className={`status-pill ${STATUS_TONE[result.status]||"tone-blue"}`}>{result.status}</span></div>
+    <div className="tracking-result-head"><div><span>{sw?"Namba ya mzigo":"Tracking number"}</span><strong className="tracking-number-value">{result.shipmentNumber}</strong></div><span className={`status-pill ${result.isOnHold?"tone-red":TRACKING_LABELS[result.status]?.tone||"tone-blue"}`}>{result.isOnHold?(sw?"Umesitishwa kwa muda · ":"On hold · "):""}{trackingStatus(result.status,sw)}</span></div>
     <div className="tracking-summary">
       <div><span>{sw?"Mahali ilipo sasa":"Current location"}</span><strong>{result.currentLocation}</strong></div>
       <div><span>{sw?"Mpokeaji":"Receiver"}</span><strong>{result.receiver}</strong></div>
@@ -75,6 +73,6 @@ export function TrackingForm({ locale }: { locale: Locale }) {
       <div><span>{sw?"Kuwasili kunakotarajiwa":"Expected arrival"}</span><strong>{result.expectedArrival?formatDate(result.expectedArrival,sw):(sw?"Itathibitishwa":"To be confirmed")}</strong></div>
       <div><span>{sw?"Sasisho la mwisho":"Last updated"}</span><strong>{formatDate(result.lastUpdate,sw)}</strong></div>
     </div>
-    {result.history.length>0&&<ol className="tracking-timeline">{result.history.map((item,index)=><li key={`${item.time}-${index}`} className={index===0?"current":""}><span></span><div><time>{formatDate(item.time,sw)}</time><strong>{item.status}</strong>{item.location&&<small>{item.location}</small>}{item.description&&<p>{item.description}</p>}</div></li>)}</ol>}
+    {result.history.length>0&&<ol className="tracking-timeline">{newestHistory(result.history).map((item,index)=><li key={`${item.time}-${index}`} className={index===0?"current":""}><span></span><div><time>{formatDate(item.time,sw)}</time><strong>{trackingStatus(item.status,sw)}</strong>{item.location&&<small>{item.location}</small>}{item.description&&<p>{item.description}</p>}</div></li>)}</ol>}
   </div>}</div>;
 }
