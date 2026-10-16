@@ -3,8 +3,8 @@ export const company = {
   brandName: "TCAST Cargo",
   website: "tcastcargo.com",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://www.tcastcargo.com",
-  email: "tahilcast@gmail.com",
-  quoteEmail: process.env.QUOTE_EMAIL_TO || "tahilcast@gmail.com",
+  email: "tcastcargo@gmail.com",
+  quoteEmail: process.env.QUOTE_EMAIL_TO || "tcastcargo@gmail.com",
   phones: {
     tanzania: { display: "+255 671 711 333", href: "+255671711333" },
     dubai: { display: "+971 54 2382399", href: "+971542382399" },
