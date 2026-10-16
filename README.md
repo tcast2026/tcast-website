@@ -33,7 +33,7 @@ Copy `.env.example` to `.env.local` and set only the integrations being enabled.
 
 - `NEXT_PUBLIC_SITE_URL` — canonical website URL.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` — secure server-side contact and quote email delivery.
-- `QUOTE_EMAIL_TO` — quote/contact destination; defaults to `tahilcast@gmail.com`.
+- `QUOTE_EMAIL_TO` — quote/contact destination; defaults to `tcastcargo@gmail.com`.
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — use the same project as the Cargo App (`pacxxkmttvvestwjskjq`). The tracking form calls `/api/tracking`; the server applies an IP rate limit and invokes `track_shipment()` with the publishable key. Never configure a service-role/secret key here. Responses use `no-store`, so every search reads the current app data. The rate limit is per server instance; use an infrastructure rate limit for a strict distributed limit. The public RPC is still directly accessible with the publishable key, so website rate limiting alone does not prevent direct RPC enumeration. Schema/migrations live in the Cargo App repo.
 - `ALLOWED_FORM_ORIGINS` — comma-separated trusted production origins.
 

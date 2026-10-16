@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const raw=await request.json(); const normalized=Object.fromEntries(Object.entries(raw).map(([key,value])=>[key,cleanText(value,key==="message"?4000:200)]));
     const parsed=schema.safeParse(normalized); const sw=normalized.locale==="sw";
     if(!parsed.success)return NextResponse.json({message:sw?"Kagua sehemu zinazohitajika na ujaribu tena.":"Please check the required fields and try again."},{status:400});
-    if(!mailConfigured())return NextResponse.json({message:sw?"Fomu ya barua pepe bado haijaunganishwa. Tafadhali tumia simu, WhatsApp au tahilcast@gmail.com.":"Secure email delivery is not configured yet. Please call, use WhatsApp, or email tahilcast@gmail.com."},{status:503});
+    if(!mailConfigured())return NextResponse.json({message:sw?"Fomu ya barua pepe bado haijaunganishwa. Tafadhali tumia simu, WhatsApp au tcastcargo@gmail.com.":"Secure email delivery is not configured yet. Please call, use WhatsApp, or email tcastcargo@gmail.com."},{status:503});
     const d=parsed.data; await sendMail({subject:`Website enquiry — ${d.department} — ${d.name}`,replyTo:d.email,text:[`Name: ${d.name}`,`Phone: ${d.phone}`,`Email: ${d.email}`,`Department: ${d.department}`,"",d.message].join("\n")});
     return NextResponse.json({message:sw?"Ujumbe umetumwa. Timu ya TCAST itakujibu baada ya kukagua ombi.":"Your enquiry was sent. The TCAST team will respond after reviewing it."});
   } catch { return NextResponse.json({message:"Unable to process the enquiry right now. Please contact TCAST Cargo directly."},{status:500}); }
